@@ -36,7 +36,7 @@ dependencies {
     // 解决 Date() - 1 不被支持的问题
     compile 'org.codehaus.groovy:groovy-dateutil'
     // mysql 驱动
-    runtime group: 'mysql', name: 'mysql-connector-java', version: '8.0.18'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.18'
     
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compile "org.springframework.boot:spring-boot-starter-logging"
