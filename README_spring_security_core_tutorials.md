@@ -279,7 +279,7 @@ build.gradle 文件中添加一行依赖声明
     
 告诉 grails spring-security-core plugin 支持 GET 模式的登出，这样方便测试，否则要编写一个 form 来提交登出，测试比较费事。
 
-这时，就访问 contract controller 时，就会跳转到 login 页面，输入正确的用户名密码后，就能进入 /home 页面，但访问
+这时，访问 contract controller (/contract/index)，就会跳转到 login 页面，输入正确的用户名密码后，就能进入 /home 页面，但访问
 /contract 页面还是提示没有权限，这是因为没有配置访问 /contract url 所需的权限。
 
 spring-security-ui plugin 支持用户、角色的创建界面，但 core 插件是没有的。
