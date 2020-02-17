@@ -301,6 +301,11 @@ Token 的格式类似于“yangbo:1583156448794:dda4994f2c2cf3e2afac0cc5169a0bc4
 
 到这里，我们已经完成了最基本的“安全化一个web应用”的开发。
 
+## 下一步工作
+* 添加 security UI，使用 security-ui plugin对用户、角色、权限进行管理，实现用户注册、找回密码、ACL 等功能。
+* 使用 Group 简化角色的分配
+* 使用 grails-spring-security-rest plugin 实现无状态的 REST 安全化。
+
 ## 值得一读的 SpringSecurity 文档
 
 * https://docs.spring.io/spring-security/site/docs/current/reference/html5/#overall-architecture
