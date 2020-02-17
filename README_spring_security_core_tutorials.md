@@ -228,10 +228,90 @@ build.gradle 文件中添加一行依赖声明
 
 #### 3.创建 spring-security-core 配置和必要的领域对象
 
+    $ grails s2-quickstart com.mycompany.myapp User Role
+    
+注意：
+* 包名不能省略。
+* 要检查领域名称是否是数据库的保留关键字，例如有的数据库就不能使用 User、Group、Role作为表名。最好避免使用这些常见的名称
+作为领域对象名。如果一定要使用，需要用mapping指定引用模式，如：
+
+
+    static mapping = {
+       table '`user`'
+    }
+
+
+执行 s2-quickstart 命令后，会创建以下文件：
+
+    resources.groovy
+    application.groovy
+    Role.groovy
+    User.groovy
+    UserRole.groovy
+    UserPasswordEncoderListener.groovy
+
+然后，我们在 BootStrap.groovy 中初始化数据库内容。
+
+    def init = { servletContext ->
+        environments {
+            development {
+                def dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                new Contract(name: "轨检一期", signDate: dateFormat.parse("2017-09-01 00:00:00")).save()
+                new Contract(name: "轨检二期", signDate: dateFormat.parse("2018-01-10 00:00:00")).save()
+                new Contract(name: "轨检三期", signDate: dateFormat.parse("2019-10-15 00:00:00")).save()
+
+                def user = new User(username: "yangbo", password: "123").save()
+                def role = new Role(authority: "ROLE_ADMIN").save()
+                UserRole.withTransaction {
+                    UserRole.create(user, role)
+                }
+                assert UserRole.count == 1
+            }
+        }
+    }
+    
+注意：UserRole 必须用withTransaction，因为 init 闭包不会在事务中或者 session 中运行，需要显式创建一个事务，
+因为 UserRole.create() save时设置了flush=false，即不会立即保存到数据库中。
+
+在 application.groovy 中添加一行:
+
+    grails.plugin.springsecurity.logout.postOnly = false
+    
+告诉 grails spring-security-core plugin 支持 GET 模式的登出，这样方便测试，否则要编写一个 form 来提交登出，测试比较费事。
+
+这时，就访问 contract controller 时，就会跳转到 login 页面，输入正确的用户名密码后，就能进入 /home 页面，但访问
+/contract 页面还是提示没有权限，这是因为没有配置访问 /contract url 所需的权限。
+
+spring-security-ui plugin 支持用户、角色的创建界面，但 core 插件是没有的。
+
+### 测试 RememberMe 功能
+
+登录时勾选上“Remember Me”，就可以在关闭浏览器重新打开浏览器后，自动完成登录，访问需要登录的URL。
+
+注意，如果重启了web服务，那么记住的token就会失效，需要重新登录，如果想要避免这种情况，需要使用“持久化记住我”模式的实现。
+
+这是通过在 cookie 中记录了一个 token，然后通过 token 验证用户是否已经成功登录来实现的。
+
+Token 的格式类似于“yangbo:1583156448794:dda4994f2c2cf3e2afac0cc5169a0bc4”，即
+
+    “username : expiryTime : Md5Hex(username:expiryTime:password:key)”
+    
+这样的格式。具体实现可以查看 TokenBasedRememberMeServices 类。另外一种更安全的实现方法是持久性Token，
+由 PersistentTokenBasedRememberMeServices 类实现。
+
+到这里，我们已经完成了最基本的“安全化一个web应用”的开发。
+
 ## 值得一读的 SpringSecurity 文档
 
 * https://docs.spring.io/spring-security/site/docs/current/reference/html5/#overall-architecture
 * https://docs.spring.io/spring-security/site/docs/current/reference/html5/#tech-intro-authentication
+
+## 其他安全相关的 plugins
+
+* [grails-spring-security-ui Grails安全UI插件](https://grails-plugins.github.io/grails-spring-security-ui/latest/index.html#introduction)
+提供对安全领域对象的CRUD功能，即增删改查“用户、角色、权限”等对象。
+
+* [grails-spring-security-acl Grails ACL 插件](https://grails-plugins.github.io/grails-spring-security-acl/latest/index.html)，将权限功能增强到可以对每个实体对象进行授权。
 
 ## Grails 相关技巧
 
