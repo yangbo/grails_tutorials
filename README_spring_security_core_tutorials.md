@@ -210,17 +210,21 @@ SpringSecurity 中，决定一个用户是否有权限访问某资源，是由 A
 2. 创建不安全的 web 应用
 3. 创建 spring-security-core 配置和必要的领域对象
 
-#### 1.引入依赖包 'org.grails.plugins:spring-security-core:4.0.0.RC3'
+#### 1.创建不安全的 web 应用
+
+创建一个 Contract Domain对象。
+
+创建一个 Controller，列出所有的合同。
+
+可以用 grails 命令，方便地创建 domain、controller 和 view。
+
+#### 2.引入依赖包 'org.grails.plugins:spring-security-core:4.0.0.RC3'
 
 build.gradle 文件中添加一行依赖声明
 
     dependencies {
       compile 'org.grails.plugins:spring-security-core:4.0.0.RC3'
     }
-
-#### 2.创建不安全的 web 应用
-
-创建一个 Controller，列出所有的合同。
 
 #### 3.创建 spring-security-core 配置和必要的领域对象
 
