@@ -1,11 +1,11 @@
 package com.telecwin.grails.tutorials
 
+import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.ValidationException
-import groovy.json.JsonBuilder
-import groovy.json.JsonOutput
 
 import static org.springframework.http.HttpStatus.*
 
+@Secured("ROLE_USER")
 class ContractController {
     static responseFormats = ["json", "html"]
     ContractService contractService
@@ -15,13 +15,13 @@ class ContractController {
     /**
      * REST API list
      */
-    def list(){
+    def list() {
         respond contractService.list(params)
     }
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond contractService.list(params), model:[contractCount: contractService.count()]
+        respond contractService.list(params), model: [contractCount: contractService.count()]
     }
 
     def show(Long id) {
@@ -41,7 +41,7 @@ class ContractController {
         try {
             contractService.save(contract)
         } catch (ValidationException e) {
-            respond contract.errors, view:'create'
+            respond contract.errors, view: 'create'
             return
         }
 
@@ -67,7 +67,7 @@ class ContractController {
         try {
             contractService.save(contract)
         } catch (ValidationException e) {
-            respond contract.errors, view:'edit'
+            respond contract.errors, view: 'edit'
             return
         }
 
@@ -76,7 +76,7 @@ class ContractController {
                 flash.message = message(code: 'default.updated.message', args: [message(code: 'contract.label', default: 'Contract'), contract.id])
                 redirect contract
             }
-            '*'{ respond contract, [status: OK] }
+            '*' { respond contract, [status: OK] }
         }
     }
 
@@ -91,9 +91,9 @@ class ContractController {
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.deleted.message', args: [message(code: 'contract.label', default: 'Contract'), id])
-                redirect action:"index", method:"GET"
+                redirect action: "index", method: "GET"
             }
-            '*'{ render status: NO_CONTENT }
+            '*' { render status: NO_CONTENT }
         }
     }
 
@@ -103,7 +103,7 @@ class ContractController {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: 'contract.label', default: 'Contract'), params.id])
                 redirect action: "index", method: "GET"
             }
-            '*'{ render status: NOT_FOUND }
+            '*' { render status: NOT_FOUND }
         }
     }
 }

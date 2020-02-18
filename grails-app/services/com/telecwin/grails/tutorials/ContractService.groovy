@@ -20,6 +20,10 @@ class ContractService {
         new Contract(name: "轨检四期", signDate: simpleDateFormat.parse("2018-03-07 00:00:00")).save()
         new Contract(name: "轨检五期", signDate: simpleDateFormat.parse("2018-10-05 00:00:00")).save()
         new Contract(name: "轨检六期", signDate: simpleDateFormat.parse("2019-01-20 00:00:00")).save()
+        // 创建用户和角色
+        def user = new User(username: "yangbo", password: "123").save()
+        def role = new Role(authority: "ROLE_USER").save()
+        UserRole.create(user, role)
     }
 
     def list(Map params) {
