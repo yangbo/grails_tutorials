@@ -150,6 +150,27 @@ RFC6750规范的内容核心是：
         }
     }
 
+**让一个Controller同时支持HTML和JSON格式**
+
+技巧就是利用 URLMapping，让 /api/开头的请求都用 json 格式，而常规路径用 html 格式。代码如下：
+
+    static mappings = {
+        "/$controller/$action?/$id?(.$format)?"{
+            // 普通url用返回html
+            format = "html"
+            constraints {
+                // apply constraints here
+            }
+        }
+        "/api/$controller/$action/$id?"{
+            // api 固定返回 json
+            format = "json"
+        }
+        "/"(view:"/index")
+        "500"(view:'/error')
+        "404"(view:'/notFound')
+    }
+
 到这里，一个REST API就开发好了，下面我们需要对它进行安全保护，只允许登录用户能访问。
 
 ### 2. 首先安装spring-security-rest插件
@@ -164,4 +185,71 @@ RFC6750规范的内容核心是：
     }
 
 ### 3. 走一遍 grails-spring-security-core 插件需要做的事情
+
+因为 security rest 插件依赖了 security core 插件，所以需要执行 security core 的一些基本配置才能行，其实 security core
+插件只是将 Token 的存储方式换成了 JWT 而已。
+
 * 创建 User、Role 类
+
+    grails s2-quickstart com.telecwin.grails.tutorials User Role
+
+* 在 Bootstrap.groovy 中创建初始用户和角色
+
+* 配置登出地址可以使用GET访问，方便调试
+
+### 4. 配置 security rest 特有的属性
+
+* 首先添加 JWT 密钥。
+
+**application.groovy**
+
+    // 至少32字节的密钥
+    grails.plugin.springsecurity.rest.token.storage.jwt.secret = "rest_api_key_2020rest_api_key_2020rest_api_key_2020"
+
+* 为普通url和api url分别配置不同的过滤器
+
+**application.groovy**
+
+    grails.plugin.springsecurity.filterChain.chainMap = [
+        [pattern: '/assets/**',      filters: 'none'],
+        [pattern: '/**/js/**',       filters: 'none'],
+        [pattern: '/**/css/**',      filters: 'none'],
+        [pattern: '/**/images/**',   filters: 'none'],
+        [pattern: '/**/favicon.ico', filters: 'none'],
+        // Stateless chain for API, 注意顺序，这个必须放在 /** 的前面，否则不起作用
+        [
+                pattern: '/api/**',
+                filters: 'JOINED_FILTERS,-anonymousAuthenticationFilter,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter,-rememberMeAuthenticationFilter'
+        ],
+        // Traditional, stateful chain
+        [
+                pattern: '/**',
+                filters: 'JOINED_FILTERS,-restTokenValidationFilter,-restExceptionTranslationFilter'
+        ]
+    ]
+
+* 给 Controller 添加访问权限要求
+
+这里使用一个技巧，就是将 @Secured 注解从方法移动到类上，这样就不必对每个方法都书写一次相同的角色注解了。
+
+**ContractController.groovy**
+
+    @Secured("ROLE_USER")
+    class ContractController {
+        static responseFormats = ["json", "html"]
+        ContractService contractService
+    
+        static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
+    
+        /**
+         * REST API list
+         */
+        def list() {
+            respond contractService.list(params)
+        }
+        ...
+    }
+    
+如果出现 IllegalStateException 异常，请重新启动 grails 程序，可能是因为热重载功能失效了。
+
+到这里，用 grails-spring-security-rest 保护 REST API 就开发完成了。 

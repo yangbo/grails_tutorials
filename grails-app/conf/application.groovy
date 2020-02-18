@@ -26,20 +26,14 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 	[pattern: '/**/css/**',      filters: 'none'],
 	[pattern: '/**/images/**',   filters: 'none'],
 	[pattern: '/**/favicon.ico', filters: 'none'],
-	[pattern: '/**',             filters: 'JOINED_FILTERS']
-]
-
-// 配置 grails-spring-security-rest plugin 的filterChain
-grails.plugin.springsecurity.filterChain.chainMap = [
-		//Stateless chain
-		[
-				pattern: '/api/**',
-				filters: 'JOINED_FILTERS,-anonymousAuthenticationFilter,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter,-rememberMeAuthenticationFilter'
-		],
-
-		//Traditional, stateful chain
-		[
-				pattern: '/**',
-				filters: 'JOINED_FILTERS,-restTokenValidationFilter,-restExceptionTranslationFilter'
-		]
+	// Stateless chain for API, 注意顺序，这个必须放在 /** 的前面，否则不起作用
+	[
+			pattern: '/api/**',
+			filters: 'JOINED_FILTERS,-anonymousAuthenticationFilter,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter,-rememberMeAuthenticationFilter'
+	],
+	// Traditional, stateful chain
+	[
+			pattern: '/**',
+			filters: 'JOINED_FILTERS,-restTokenValidationFilter,-restExceptionTranslationFilter'
+	]
 ]
