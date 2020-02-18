@@ -71,9 +71,90 @@ RFC6750规范的内容核心是：
 
 添加一个 Contract 合同领域对象。
 
-然后添加一个 ContractController，其中的 list 方法返回所有的合同。
+**domain/Contract.groovy**
 
-### 2. 首先安装插件，就是添加 gradle 依赖
+    class Contract {
+        // 合同名
+        String name
+        // 合同签订日期
+        Date signDate
+    
+        Date dateCreated
+        Date lastUpdated
+    
+        static constraints = {
+        }
+    }
+    
+添加一个 Service 来初始化数据库内容。
+
+**services/ContractService.groovy**
+
+    @Transactional
+    class ContractService {
+    
+        /**
+         * 为开发环境创建初始化数据
+         */
+        def populateForDevelopEnv() {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            new Contract(name: "轨检一期", signDate: simpleDateFormat.parse("2017-09-03 00:00:00")).save()
+            new Contract(name: "轨检二期", signDate: simpleDateFormat.parse("2017-10-30 00:00:00")).save()
+            new Contract(name: "轨检三期", signDate: simpleDateFormat.parse("2018-01-10 00:00:00")).save()
+            new Contract(name: "轨检四期", signDate: simpleDateFormat.parse("2018-03-07 00:00:00")).save()
+            new Contract(name: "轨检五期", signDate: simpleDateFormat.parse("2018-10-05 00:00:00")).save()
+            new Contract(name: "轨检六期", signDate: simpleDateFormat.parse("2019-01-20 00:00:00")).save()
+        }
+    
+        def list(Map params) {
+            Contract.list(params)
+        }
+    }
+
+遇到一个问题，service的@Transactional注解方法，不能保存数据到数据库中。原来是 Domain 对象在save时做validation失败了，
+默认情况下grails会忽略这个错误，只是不保存，而不会抛出异常，需要打开配置才会显式地抛出异常，如下：
+
+**application.yaml**
+
+    grails:
+        gorm:
+            failOnError: true
+
+不论开发环境还是生产，打开这个开关都是有必要的，除非每次执行完数据库操作后，都检查或者显示实体对象的错误信息。
+
+这个错误时因为将默认的两个 Domain 属性写错名字了，正确的是：
+
+    Date dateCreated
+    Date lastUpdated
+
+我错误地写成了：
+
+    Date dateCreated
+    Date dateUpdated    // 写错了！！！
+
+然后添加一个 ContractController，其中的 list 方法以json模式返回所有的合同。
+
+**ContractController.groovy***
+
+    class ContractController {
+        static responseFormats = ["json", "html"]
+        ContractService contractService
+    
+        static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
+    
+        /**
+         * REST API list
+         */
+        def list(){
+            respond contractService.list(params)
+        }
+    }
+
+到这里，一个REST API就开发好了，下面我们需要对它进行安全保护，只允许登录用户能访问。
+
+### 2. 首先安装spring-security-rest插件
+
+就是添加 gradle 依赖，代码如下。
 
 **build.gradle**
 
@@ -81,3 +162,6 @@ RFC6750规范的内容核心是：
         //Other dependencies
         compile "org.grails.plugins:spring-security-rest:3.0.0"
     }
+
+### 3. 走一遍 grails-spring-security-core 插件需要做的事情
+* 创建 User、Role 类

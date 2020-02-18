@@ -4,6 +4,7 @@ grails:
     codegen:
         defaultPackage: com.telecwin.grails.tutorials
     gorm:
+        failOnError: true
         reactor:
             # Whether to translate GORM events into Reactor events
             # Disabled by default for performance reasons
