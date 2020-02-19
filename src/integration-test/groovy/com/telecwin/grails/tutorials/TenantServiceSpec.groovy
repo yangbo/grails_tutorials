@@ -13,14 +13,12 @@ class TenantServiceSpec extends Specification {
     SessionFactory sessionFactory
 
     private Long setupData() {
-        // TODO: Populate valid domain instances and return a valid ID
+        //new Tenant(name: "yangbo").save(flush: true, failOnError: true)
+        //new Tenant(...).save(flush: true, failOnError: true)
+        Tenant tenant = new Tenant(name: "yangbo").save(flush: true, failOnError: true)
         //new Tenant(...).save(flush: true, failOnError: true)
         //new Tenant(...).save(flush: true, failOnError: true)
-        //Tenant tenant = new Tenant(...).save(flush: true, failOnError: true)
-        //new Tenant(...).save(flush: true, failOnError: true)
-        //new Tenant(...).save(flush: true, failOnError: true)
-        assert false, "TODO: Provide a setupData() implementation for this generated test suite"
-        //tenant.id
+        tenant.id
     }
 
     void "test get"() {
@@ -34,38 +32,36 @@ class TenantServiceSpec extends Specification {
         setupData()
 
         when:
-        List<Tenant> tenantList = tenantService.list(max: 2, offset: 2)
+        List<Tenant> tenantList = tenantService.list(max: 2, offset: 0)
 
         then:
-        tenantList.size() == 2
-        assert false, "TODO: Verify the correct instances are returned"
+        tenantList.size() == 1
     }
 
     void "test count"() {
         setupData()
 
         expect:
-        tenantService.count() == 5
+        tenantService.count() == 1
     }
 
     void "test delete"() {
         Long tenantId = setupData()
 
         expect:
-        tenantService.count() == 5
+        tenantService.count() == 1
 
         when:
         tenantService.delete(tenantId)
         sessionFactory.currentSession.flush()
 
         then:
-        tenantService.count() == 4
+        tenantService.count() == 0
     }
 
     void "test save"() {
         when:
-        assert false, "TODO: Provide a valid instance to save"
-        Tenant tenant = new Tenant()
+        Tenant tenant = new Tenant(name: "bob")
         tenantService.save(tenant)
 
         then:

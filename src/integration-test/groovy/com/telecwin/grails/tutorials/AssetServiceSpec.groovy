@@ -1,9 +1,13 @@
 package com.telecwin.grails.tutorials
 
-import grails.testing.mixin.integration.Integration
+import grails.gorm.multitenancy.Tenants
 import grails.gorm.transactions.Rollback
-import spock.lang.Specification
+import grails.testing.mixin.integration.Integration
+import org.grails.datastore.mapping.multitenancy.web.SessionTenantResolver
 import org.hibernate.SessionFactory
+import org.springframework.web.context.request.RequestAttributes
+import org.springframework.web.context.request.RequestContextHolder
+import spock.lang.Specification
 
 @Integration
 @Rollback
@@ -13,59 +17,81 @@ class AssetServiceSpec extends Specification {
     SessionFactory sessionFactory
 
     private Long setupData() {
-        // TODO: Populate valid domain instances and return a valid ID
-        //new Asset(...).save(flush: true, failOnError: true)
-        //new Asset(...).save(flush: true, failOnError: true)
-        //Asset asset = new Asset(...).save(flush: true, failOnError: true)
-        //new Asset(...).save(flush: true, failOnError: true)
-        //new Asset(...).save(flush: true, failOnError: true)
-        assert false, "TODO: Provide a setupData() implementation for this generated test suite"
-        //asset.id
+        // 生成两个租户
+        Tenant tenant = new Tenant(name: "张三")
+        Tenant tenant2 = new Tenant(name: "李四")
+        Tenant.withTransaction {
+            tenant.save(flush: true, failOnError: true)
+            tenant2.save(flush: true, failOnError: true)
+        }
+        // 设置当前 session 的租户id
+        RequestContextHolder.setRequestAttributes(Mock(RequestAttributes){
+            getAttribute(SessionTenantResolver.ATTRIBUTE, RequestAttributes.SCOPE_SESSION) >> tenant.id
+        })
+        Asset asset = assetService.save(new Asset(name: "房子"))
+        // 给另外一个租户添加资产
+        Tenants.withId(2L){
+            assetService.save(new Asset(name: "车子"))
+        }
+        // 设置当前的租户
+        asset.id
     }
 
     void "test get"() {
         setupData()
-
         expect:
-        assetService.get(1) != null
+        assetService.get(1).name == "房子"
     }
 
     void "test list"() {
         setupData()
 
         when:
-        List<Asset> assetList = assetService.list(max: 2, offset: 2)
+        List<Asset> assetList = assetService.list(max: 2, offset: 0)
 
         then:
-        assetList.size() == 2
-        assert false, "TODO: Verify the correct instances are returned"
+        assetList.size() == 1
     }
 
     void "test count"() {
         setupData()
 
         expect:
-        assetService.count() == 5
+        assetService.count() == 1
     }
 
-    void "test delete"() {
+    void "test delete without flush"() {
         Long assetId = setupData()
 
         expect:
-        assetService.count() == 5
+        assetService.count() == 1
 
         when:
-        assetService.delete(assetId)
-        sessionFactory.currentSession.flush()
+        Asset.withSession {
+            assetService.delete(assetId)
+            it.flush()
+        }
+        then:
+        assetService.count() == 0
+    }
+
+    void "test deleteWithFlush"() {
+        Long assetId = setupData()
+
+        expect:
+        assetService.count() == 1
+
+        when:
+        assetService.deleteWithFlush(assetId)
 
         then:
-        assetService.count() == 4
+        assetService.count() == 0
     }
 
     void "test save"() {
+        setupData()
         when:
-        assert false, "TODO: Provide a valid instance to save"
-        Asset asset = new Asset()
+        Asset asset = new Asset(name: "坦克")
         assetService.save(asset)
 
         then:

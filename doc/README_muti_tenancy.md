@@ -91,7 +91,42 @@ grails:
         }
     }
 
+### 给服务添加多租户注解
+
+    @Service(Asset)
+    @CurrentTenant
+    interface AssetService {
+        ...
+    }
+
+这样每个服务的方法在执行时，都是相对于当前租户的了。
 
 ### 编写集成测试
 
 因为需要对服务进行测试，所以这里我们用“集成测试”。grails 中的单元测试，一般只对单个领域对象测试，且不真正访问数据库。
+
+集成测试代码需要 Mock（模仿）Controller中的web请求，具体代码如下：
+
+    private Long setupData() {
+        // 生成两个租户
+        Tenant tenant = new Tenant(name: "张三")
+        Tenant tenant2 = new Tenant(name: "李四")
+        Tenant.withTransaction {
+            tenant.save(flush: true, failOnError: true)
+            tenant2.save(flush: true, failOnError: true)
+        }
+        // 用模拟的RequestAttributes对象设置当前 session 的租户id
+        RequestContextHolder.setRequestAttributes(Mock(RequestAttributes){
+            getAttribute(SessionTenantResolver.ATTRIBUTE, RequestAttributes.SCOPE_SESSION) >> tenant.id
+        })
+        Asset asset = assetService.save(new Asset(name: "房子"))
+        // 给另外一个租户添加资产
+        Tenants.withId(2L){
+            assetService.save(new Asset(name: "车子"))
+        }
+        // 设置当前的租户
+        asset.id
+    }
+    
+现在就可以运行测试代码，查看“多租户”的效果了。其中一个测试用例如下：
+
