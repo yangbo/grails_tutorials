@@ -22,17 +22,17 @@ class TenantServiceSpec extends Specification {
     }
 
     void "test get"() {
-        setupData()
+        Long id = setupData()
 
         expect:
-        tenantService.get(1) != null
+        tenantService.get(id) != null
     }
 
     void "test list"() {
         setupData()
 
         when:
-        List<Tenant> tenantList = tenantService.list(max: 2, offset: 0)
+        List<Tenant> tenantList = tenantService.list(max: 10, offset: 0)
 
         then:
         tenantList.size() == 1
