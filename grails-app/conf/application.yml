@@ -8,6 +8,10 @@ grails:
             # Whether to translate GORM events into Reactor events
             # Disabled by default for performance reasons
             events: false
+        # 多租户配置
+        multiTenancy:
+            mode: DISCRIMINATOR
+            tenantResolverClass: org.grails.datastore.mapping.multitenancy.web.SessionTenantResolver
 info:
     app:
         name: '@info.app.name@'

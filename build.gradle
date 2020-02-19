@@ -37,6 +37,8 @@ dependencies {
     compile 'org.codehaus.groovy:groovy-dateutil'
     // mysql 驱动
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.18'
+    // 多租户
+    compile "org.grails:grails-datastore-web:6.1.12.RELEASE"
     
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compile "org.springframework.boot:spring-boot-starter-logging"
