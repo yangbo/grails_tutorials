@@ -193,3 +193,98 @@ Download类，这个类不支持跟踪重定向！
 
 后重新执行一次 test task 就行了。
 
+执行 build 或者任何 test 任务时，记得设置环境变量“geb.env=chrome”或者定义VM参数
+
+    -Dgeb.env=chrome
+
+否则会去查找 firefox 作为测试浏览器。
+
+### 编写功能测试，测试不同用户看到的资产
+
+#### 先要实现登录功能，这里用 spring-security-core 插件来做
+
+引入插件包 spring-security-core 依赖
+
+用s2-quickstart创建 User 和 Role 领域对象。
+
+给 User 添加 MultiTenant traits 和 tenantId 属性。但是这样做，会导致 security-core 在登录前查找用户报错，因为这时还不能
+确定租户。异常片段如下：
+
+	at grails.plugin.springsecurity.userdetails.GormUserDetailsService.loadUserByUsername(GormUserDetailsService.groovy:76)
+	at org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices.processAutoLoginCookie(TokenBasedRememberMeServices.java:123)
+	at org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices.autoLogin(AbstractRememberMeServices.java:136)
+
+看来对于这种有时需要不分租户查询，且无法显示控制的领域对象，我们还是不要纳入自动多租户的模式下。自己手动设置所属租户吧。
+尤其是如果还用了 grails-spring-security-rest 那么更不好解决。
+
+（是不是应该创建一个 LoginUserTenantResolver？）
+
+还是去掉 User 的 MultiTenant traits。
+
+创建一个服务，用来生成初始的用户、角色和租户。
+
+自定义一个 TenantResolver.
+
+    /**
+     * 从安全上下文字解析出租户
+     */
+    @CompileStatic
+    class SecurityTenantResolver implements TenantResolver {
+        /**
+         * Get the currently logged in user's principal. If not authenticated and the
+         * AnonymousAuthenticationFilter is active (true by default) then the anonymous
+         * user's name will be returned ('anonymousUser' unless overridden).
+         *
+         * @return the principal
+         */
+        def getPrincipal() { getAuthentication()?.principal }
+    
+        /**
+         * Get the currently logged in user's <code>Authentication</code>. If not authenticated
+         * and the AnonymousAuthenticationFilter is active (true by default) then the anonymous
+         * user's auth will be returned (AnonymousAuthenticationToken with username 'anonymousUser'
+         * unless overridden).
+         *
+         * @return the authentication
+         */
+        Authentication getAuthentication() { SecurityContextHolder.context?.authentication }
+    
+        @Override
+        Serializable resolveTenantIdentifier() throws TenantNotFoundException {
+            if (this.principal instanceof GrailsUser ) {
+                GrailsUser grailsUser = this.principal as GrailsUser
+                return grailsUser.id as Serializable
+            } else {
+                throw new TenantNotFoundException("SecurityContext.principle is not GrailsUser class!")
+            }
+        }
+    }
+
+到这里，我们就可以重启服务，用不同的用户登录测试，能看到不同的所属租户资产。
+
+遇到一个 instanceOf 的问题
+
+    def user = springSecurityService.currentUser
+    if (user.class.name == User.name) {
+        return (user as User).tenantId as Serializable
+    }
+
+用 instanceOf 返回false，用 user.class==User.class 返回false。
+最后还是打开动态 MOP支持，如下：
+
+    @CompileStatic(TypeCheckingMode.SKIP)
+    @Override
+    Serializable resolveTenantIdentifier() throws TenantNotFoundException {
+        SpringSecurityService springSecurityService = Holders.applicationContext.getBean(SpringSecurityService.class)
+        def user = springSecurityService.currentUser
+        if (user.hasProperty("tenant")) {
+            return user.tenant.id as Serializable
+        } else {
+            throw new TenantNotFoundException("SecurityContext.principle is not GrailsUser class!")
+        }
+    }
+
+TODO 解决每次“查找tenant”都需要访问两次数据库的问题。
+扩展 GrailsUser 为 TenantGrailsUser，让它带上 tenantId，然后重载 GormUserDetailsService，将 TenantId 设置进 TenantGrailsUser,
+这样就可以在 TenantResolver 中直接使用租户id了。
+

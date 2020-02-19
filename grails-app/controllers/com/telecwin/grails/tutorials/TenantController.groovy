@@ -1,11 +1,11 @@
 package com.telecwin.grails.tutorials
 
+import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.ValidationException
-
-import java.util.concurrent.Callable
 
 import static org.springframework.http.HttpStatus.*
 
+@Secured("ROLE_ADMIN")
 class TenantController {
 
     TenantService tenantService
@@ -14,7 +14,7 @@ class TenantController {
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond tenantService.list(params), model:[tenantCount: tenantService.count()]
+        respond tenantService.list(params), model: [tenantCount: tenantService.count()]
     }
 
     def show(Long id) {
@@ -34,7 +34,7 @@ class TenantController {
         try {
             tenantService.save(tenant)
         } catch (ValidationException e) {
-            respond tenant.errors, view:'create'
+            respond tenant.errors, view: 'create'
             return
         }
 
@@ -61,7 +61,7 @@ class TenantController {
         try {
             tenantService.save(tenant)
         } catch (ValidationException e) {
-            respond tenant.errors, view:'edit'
+            respond tenant.errors, view: 'edit'
             return
         }
 
@@ -70,7 +70,7 @@ class TenantController {
                 flash.message = message(code: 'default.updated.message', args: [message(code: 'tenant.label', default: 'Tenant'), tenant.id])
                 redirect tenant
             }
-            '*'{ respond tenant, [status: OK] }
+            '*' { respond tenant, [status: OK] }
         }
     }
 
@@ -85,9 +85,9 @@ class TenantController {
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.deleted.message', args: [message(code: 'tenant.label', default: 'Tenant'), id])
-                redirect action:"index", method:"GET"
+                redirect action: "index", method: "GET"
             }
-            '*'{ render status: NO_CONTENT }
+            '*' { render status: NO_CONTENT }
         }
     }
 
@@ -97,7 +97,7 @@ class TenantController {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: 'tenant.label', default: 'Tenant'), params.id])
                 redirect action: "index", method: "GET"
             }
-            '*'{ render status: NOT_FOUND }
+            '*' { render status: NOT_FOUND }
         }
     }
 }

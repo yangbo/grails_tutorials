@@ -228,7 +228,7 @@ build.gradle 文件中添加一行依赖声明
 
 #### 3.创建 spring-security-core 配置和必要的领域对象
 
-    $ grails s2-quickstart com.mycompany.myapp User Role
+    $ grails s2-quickstart com.telecwin.grails.tutorials User Role
     
 注意：
 * 包名不能省略。
