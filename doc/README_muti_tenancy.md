@@ -269,7 +269,8 @@ Download类，这个类不支持跟踪重定向！
         return (user as User).tenantId as Serializable
     }
 
-用 instanceOf 返回false，用 user.class==User.class 返回false。
+用 instanceOf 返回false，用 user.class==User.class 返回false。原因是这两个类的 classloader 不一样，
+classloader不一样时，相同Class也被认为是不同的类。参考[文章](https://community.oracle.com/thread/1785732)。
 最后还是打开动态 MOP支持，如下：
 
     @CompileStatic(TypeCheckingMode.SKIP)
