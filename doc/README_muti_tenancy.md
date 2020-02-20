@@ -350,10 +350,12 @@ grails ORM 的 [issue](https://github.com/grails/grails-data-mapping/issues/747)
         }
     }
 
+#### 每次“查找tenant”都需要访问两次数据库的问题
 
-#### TODO 解决每次“查找tenant”都需要访问两次数据库的问题
-扩展 GrailsUser 为 TenantGrailsUser，让它带上 tenantId，然后重载 GormUserDetailsService，将 TenantId 设置进 TenantGrailsUser,
-这样就可以在 TenantResolver 中直接使用租户id了。
+这个是 grails-gorm 的一个bug，已经在7.0.3解决，修改 gradle.properties 文件中的 `gorm.version=7.0.3.RELEASE` 即可。
+
+要不从数据库读取 tenantId，需要扩展 GrailsUser 为 TenantGrailsUser，让它带上 tenantId，然后重载 GormUserDetailsService，
+将 TenantId 设置进 TenantGrailsUser，这样就可以在 TenantResolver 中直接使用租户id了。
 
 #### 另外一个不相关的热重启异常
 
