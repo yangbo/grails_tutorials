@@ -271,6 +271,10 @@ Download类，这个类不支持跟踪重定向！
 
 用 instanceOf 返回false，用 user.class==User.class 返回false。原因是这两个类的 classloader 不一样，
 classloader不一样时，相同Class也被认为是不同的类。参考[文章](https://community.oracle.com/thread/1785732)。
+
+    currentUser的classLoader: org.springframework.boot.devtools.restart.classloader.RestartClassLoader@92940b2
+    User的classLoader: sun.misc.Launcher$AppClassLoader@18b4aac2
+
 最后还是打开动态 MOP支持，如下：
 
     @CompileStatic(TypeCheckingMode.SKIP)
@@ -285,7 +289,86 @@ classloader不一样时，相同Class也被认为是不同的类。参考[文章
         }
     }
 
-TODO 解决每次“查找tenant”都需要访问两次数据库的问题。
+根本原因是 org.grails.datastore.mapping.multitenancy.MultiTenancySettings.getTenantResolver() 方法创建TenantResolver实例
+的方法有问题，没有考虑到classloader的不通过，应该用grails的classloader来创建实例，甚至应该用spring的依赖注入。
+
+    /**
+     * @return The tenant resolver
+     */
+    TenantResolver getTenantResolver() {
+        if(tenantResolver != null) {
+            return tenantResolver
+        }
+        else if(tenantResolverClass != null) {
+            return BeanUtils.instantiate(tenantResolverClass)
+        }
+        return new NoTenantResolver()
+    }
+
+grails ORM 的 [issue](https://github.com/grails/grails-data-mapping/issues/747) 中有提到如何使用spring管理的bean作为 TenantResolver.
+这样可以让 classloader 相同，都是 spring 的 classloader。
+
+最后 SecurityTenantResolver 改成这样了：
+
+    package com.telecwin.grails.tutorials
+    
+    import grails.plugin.springsecurity.SpringSecurityService
+    import grails.util.Holders
+    import groovy.transform.CompileStatic
+    import org.grails.datastore.mapping.multitenancy.TenantResolver
+    import org.grails.datastore.mapping.multitenancy.exceptions.TenantNotFoundException
+    import org.springframework.beans.factory.annotation.Autowired
+    import org.springframework.context.annotation.Lazy
+    
+    /**
+     * 从安全上下文解析出租户
+     */
+    @CompileStatic
+    class SecurityTenantResolver implements TenantResolver {
+    
+        @Autowired
+        @Lazy
+        SpringSecurityService springSecurityService
+    
+        @Override
+        Serializable resolveTenantIdentifier() throws TenantNotFoundException {
+            //SpringSecurityService springSecurityService = Holders.applicationContext.getBean(SpringSecurityService.class)
+            def user = springSecurityService.currentUser
+    
+            // println("="*10)
+            // println("currentUser的classLoader: ${user.class.classLoader}")
+            // println("User的classLoader: ${User.class.classLoader}")
+            // println("grailsApplication的classLoader: ${Holders.grailsApplication.classLoader}")
+            
+            //Class<?> userClass = user.class.classLoader.loadClass("com.telecwin.grails.tutorials.User")
+            //assert userClass == Holders.grailsApplication.classLoader.loadClass("com.telecwin.grails.tutorials.User")
+            if (user instanceof User) {
+                return (user as User).tenant.id
+            } else {
+                throw new TenantNotFoundException("currentUser is not User class, that should has tenant property!")
+            }
+        }
+    }
+
+
+#### TODO 解决每次“查找tenant”都需要访问两次数据库的问题
 扩展 GrailsUser 为 TenantGrailsUser，让它带上 tenantId，然后重载 GormUserDetailsService，将 TenantId 设置进 TenantGrailsUser,
 这样就可以在 TenantResolver 中直接使用租户id了。
+
+#### 另外一个不相关的热重启异常
+
+当修改一个类热重启后，访问 login URL会报告下面错误
+`java.lang.IllegalStateException: The resources may not be accessed if they are not currently started`。
+可能是 security-core 插件的bug。
+
+原来是 ServletContextResource 访问 org.apache.catalina.webresources.StandardRoot.validate()，而 servlet 的状态是 
+DESTROYED 导致的异常。
+
+    private String validate(String path) {
+        if (!getState().isAvailable()) {
+            throw new IllegalStateException(
+                    sm.getString("standardRoot.checkStateNotStarted"));
+        }
+    ...
+    }
 

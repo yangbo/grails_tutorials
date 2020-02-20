@@ -12,7 +12,7 @@ grails:
         multiTenancy:
             mode: DISCRIMINATOR
 #            tenantResolverClass: org.grails.datastore.mapping.multitenancy.web.SessionTenantResolver
-            tenantResolverClass: com.telecwin.grails.tutorials.SecurityTenantResolver
+#            tenantResolverClass: com.telecwin.grails.tutorials.SecurityTenantResolver
 info:
     app:
         name: '@info.app.name@'
