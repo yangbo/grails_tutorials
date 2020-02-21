@@ -109,25 +109,31 @@ grails:
 
     private Long setupData() {
         // 生成两个租户
-        Tenant tenant = new Tenant(name: "张三")
-        Tenant tenant2 = new Tenant(name: "李四")
+        Tenant tenant = new Tenant(name: "租户1")
+        Tenant tenant2 = new Tenant(name: "租户2")
+        User user = new User(username: "甲某某", password: "123", tenant: tenant)
+        User user2 = new User(username: "乙某某", password: "198327498", tenant: tenant2)
         Tenant.withTransaction {
             tenant.save(flush: true, failOnError: true)
             tenant2.save(flush: true, failOnError: true)
+            user.save(flush: true, failOnError: true)
+            user2.save(flush: true, failOnError: true)
         }
-        // 用模拟的RequestAttributes对象设置当前 session 的租户id
-        RequestContextHolder.setRequestAttributes(Mock(RequestAttributes){
-            getAttribute(SessionTenantResolver.ATTRIBUTE, RequestAttributes.SCOPE_SESSION) >> tenant.id
-        })
-        Asset asset = assetService.save(new Asset(name: "房子"))
+        // 设置当前 session 的租户id
+        // 这里要用登录的方式设置当前已验证用户，会设置成功登录的"SecurityContext"
+        springSecurityService.reauthenticate("甲某某")
+        Asset asset = assetService.save(new Asset(name: "甲的房子"))
         // 给另外一个租户添加资产
-        Tenants.withId(2L){
-            assetService.save(new Asset(name: "车子"))
+        Tenants.withId(tenant2.id) {
+            assetService.save(new Asset(name: "乙的车子"))
         }
         // 设置当前的租户
         asset.id
     }
     
+这里注意，springSecurityService.reauthenticate("甲某某") 函数会无条件认为用户是已经成功登录的，如果要验证密码，需要调用
+AuthenticateManager.authenticate() 函数，然后自己设置到安全上下文容器 SecurityContextHolder 中。
+
 现在就可以运行测试代码，查看“多租户”的效果了。其中一个测试用例如下：
 
     void "test list"() {
@@ -193,9 +199,11 @@ Download类，这个类不支持跟踪重定向！
 
 后重新执行一次 test task 就行了。
 
-执行 build 或者任何 test 任务时，记得设置环境变量“geb.env=chrome”或者定义VM参数
-
-    -Dgeb.env=chrome
+执行 build 或者任何 test 任务时，记得设置环境变量“geb.env和webdriver.chrome.driver”，然后重启IDE，或者在VM的环境变量中
+逐个定义，逐个定义有个麻烦，就是每个JUnit任务都要手工定义一遍，不如直接定义系统环境变量方便。
+    
+    webdriver.chrome.driver=c:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+    geb.env=chrome
 
 否则会去查找 firefox 作为测试浏览器。
 

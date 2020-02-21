@@ -41,7 +41,7 @@ dependencies {
     compile "org.grails:grails-datastore-web:6.1.12.RELEASE"
     // 安全
     compile 'org.grails.plugins:spring-security-core:4.0.0.RC3'
-    
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
@@ -104,7 +104,7 @@ webdriverBinaries {
 }
 
 tasks.withType(Test) {
-    systemProperty "geb.env", System.getProperty('geb.env')
+    systemProperty "geb.env", System.getProperty('geb.env', 'chrome')   // 默认使用chrome
     systemProperty "geb.build.reportsDir", reporting.file("geb/integrationTest")
     systemProperty "webdriver.chrome.driver", System.getProperty('webdriver.chrome.driver')
     systemProperty "webdriver.gecko.driver", System.getProperty('webdriver.gecko.driver')

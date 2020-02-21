@@ -24,4 +24,12 @@ class FuncTestMultiTenantSpec extends GebSpec {
         then: "The title is correct"
         title == "Welcome to Grails"
     }
+
+    void "测试登录"() {
+        when: "打开资产页时，会跳转到登录页"
+        go "/asset"
+
+        then: "跳转到登录页"
+        currentUrl.contains("login")
+    }
 }

@@ -2,11 +2,8 @@ package com.telecwin.grails.tutorials
 
 import grails.gorm.multitenancy.Tenants
 import grails.gorm.transactions.Rollback
+import grails.plugin.springsecurity.SpringSecurityService
 import grails.testing.mixin.integration.Integration
-import org.grails.datastore.mapping.multitenancy.web.SessionTenantResolver
-import org.hibernate.SessionFactory
-import org.springframework.web.context.request.RequestAttributes
-import org.springframework.web.context.request.RequestContextHolder
 import spock.lang.Specification
 
 @Integration
@@ -14,24 +11,27 @@ import spock.lang.Specification
 class AssetServiceSpec extends Specification {
 
     AssetService assetService
-    SessionFactory sessionFactory
+    SpringSecurityService springSecurityService
 
     private Long setupData() {
         // 生成两个租户
-        Tenant tenant = new Tenant(name: "张三")
-        Tenant tenant2 = new Tenant(name: "李四")
+        Tenant tenant = new Tenant(name: "租户1")
+        Tenant tenant2 = new Tenant(name: "租户2")
+        User user = new User(username: "甲某某", password: "123", tenant: tenant)
+        User user2 = new User(username: "乙某某", password: "198327498", tenant: tenant2)
         Tenant.withTransaction {
             tenant.save(flush: true, failOnError: true)
             tenant2.save(flush: true, failOnError: true)
+            user.save(flush: true, failOnError: true)
+            user2.save(flush: true, failOnError: true)
         }
         // 设置当前 session 的租户id
-        RequestContextHolder.setRequestAttributes(Mock(RequestAttributes){
-            getAttribute(SessionTenantResolver.ATTRIBUTE, RequestAttributes.SCOPE_SESSION) >> tenant.id
-        })
-        Asset asset = assetService.save(new Asset(name: "房子"))
+        // 这里要用登录的方式设置当前已验证用户，会设置成功登录的"SecurityContext"
+        springSecurityService.reauthenticate("甲某某")
+        Asset asset = assetService.save(new Asset(name: "甲的房子"))
         // 给另外一个租户添加资产
-        Tenants.withId(2L){
-            assetService.save(new Asset(name: "车子"))
+        Tenants.withId(tenant2.id) {
+            assetService.save(new Asset(name: "乙的车子"))
         }
         // 设置当前的租户
         asset.id
@@ -40,7 +40,7 @@ class AssetServiceSpec extends Specification {
     void "test get"() {
         setupData()
         expect:
-        assetService.get(1).name == "房子"
+        assetService.list()[0].name == "甲的房子"
     }
 
     void "test list"() {
@@ -91,10 +91,11 @@ class AssetServiceSpec extends Specification {
     void "test save"() {
         setupData()
         when:
-        Asset asset = new Asset(name: "坦克")
+        Asset asset = new Asset(name: "甲的坦克")
         assetService.save(asset)
 
         then:
         asset.id != null
+        assetService.count() == 2
     }
 }
