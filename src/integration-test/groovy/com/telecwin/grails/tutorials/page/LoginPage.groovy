@@ -14,15 +14,3 @@ class LoginPage extends Page {
         loginButton { $("input", type: "submit", value: "Login") }
     }
 }
-
-class Test {
-    static void main(String[] args) {
-
-    }
-
-    def main(){
-        Brower {
-
-        }
-    }
-}
