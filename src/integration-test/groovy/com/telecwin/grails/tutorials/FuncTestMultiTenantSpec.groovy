@@ -30,6 +30,6 @@ class FuncTestMultiTenantSpec extends GebSpec {
         go "/asset"
 
         then: "跳转到登录页"
-        currentUrl.contains("login")
+        currentUrl.endsWith("login/auth")
     }
 }

@@ -199,13 +199,17 @@ Download类，这个类不支持跟踪重定向！
 
 后重新执行一次 test task 就行了。
 
-执行 build 或者任何 test 任务时，记得设置环境变量“geb.env和webdriver.chrome.driver”，然后重启IDE，或者在VM的环境变量中
-逐个定义，逐个定义有个麻烦，就是每个JUnit任务都要手工定义一遍，不如直接定义系统环境变量方便。
+执行 build 或者任何 test 任务时，记得设置系统属性“geb.env 和 webdriver.chrome.driver”，每个JUnit任务都要手工定义一遍，
+还没有找到一次性设置的好办法。
     
-    webdriver.chrome.driver=c:\Program Files (x86)\Google\Chrome\Application\chrome.exe
-    geb.env=chrome
+    -Dgeb.env=chrome 
+    -Dwebdriver.chrome.driver="c:\Users\yangbo\.gradle\webdriver\chromedriver\80.0.3987.16\chromedriver_win32\7vp7sm9j7tcxm3sw02xirb7qi\chromedriver.exe"
 
-否则会去查找 firefox 作为测试浏览器。
+如果不设置 chrome 环境，geb会去查找 firefox 作为测试浏览器；driver 是你下载的那个chromedriver.exe。
+
+注意：这里 geb.env 和 webdriver.chrome.driver 都是“System Property”系统属性而不是“环境变量”(Environment Variable)，
+在 java 中只能通过 JVM 启动时的命令行参数 -D 定义，或者在代码中用 System.setProperties() 设置；Gradle 中可以在
+gradle.properties 中用前缀 "systemProp.xxx" 来定义。
 
 ### 编写功能测试，测试不同用户看到的资产
 
