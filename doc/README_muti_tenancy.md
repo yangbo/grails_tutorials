@@ -374,3 +374,4 @@ DESTROYED 导致的异常。
     ...
     }
 
+这个问题属于 https://github.com/grails-plugins/grails-spring-security-core 项目。
