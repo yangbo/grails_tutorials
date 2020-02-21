@@ -148,71 +148,6 @@ AuthenticateManager.authenticate() 函数，然后自己设置到安全上下文
 
 上面的测试成功，说明列出资产时，只列了当前租户的资产。
 
-### 解决功能测试(functional test)不能运行的问题
-
-运行 build 或者 check 命令或失败，这是因为 webdriver-binaries-gradle-plugin 读取远程配置文件 repository-3.0.json 失败，
-因为这个文件放置google的服务器上，被GTW屏蔽了，且 chromedriver 只有32位的包没有64位的。
-
-感谢淘宝提供的 chromedriver 镜像：http://npm.taobao.org/mirrors/chromedriver/
-
-解决办法是：
-* 生成自己的 repository-3.0.json 文件，且将里面需要从google下载的文件换成淘宝镜像地址。我已经将修改好的上传到github，
-地址是 https://github.com/yangbo/webdriverextensions-maven-plugin-repository，检出、下载到本地即可。
-* 升级 webdriver-binaries-gradle-plugin 到2.2
-* 告诉 webdriver-binaries-gradle-plugin 使用这个新配置文件，且允许回退到32位版本。
-
-还需要注意你机器上的 chrome 版本，driver的版本需要与之对应，例如我的chrome是 80.0.3987.116 版，那么
-就需要用驱动 
-配置如下：
-
-    buildscript {
-        repositories {
-            maven { url "https://repo.grails.org/grails/core" }
-        }
-        dependencies {
-            classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-            classpath "org.grails.plugins:hibernate5:7.0.0"
-            classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.2"
-            classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.0.10"
-        }
-    }
-    webdriverBinaries {
-        chromedriver '80.0.3987.16'
-        geckodriver '0.24.0'
-        driverUrlsConfiguration = resources.text.fromFile('d:\\git\\java\\webdriverextensions-maven-plugin-repository\\repository-3.0.json')
-        fallbackTo32Bit = true
-    }
-
-现在就能成功执行 build, check 任务了！
-
-咱们来创建一个功能测试脚本
-
-    grails create-functional-test FuncTestMultiTenant
-    
-这时运行功能测试会失败，报告下载的 driver 是无效zip文件，这是因为 webdriver-binaries-gradle-plugin 的下载类不支持重定向302导致的。
-因为 webdriver-binaries-gradle-plugin 使用了另外一个项目 grolifant (在gitlab上)，而这个项目的Download对象用的是gradle的
-Download类，这个类不支持跟踪重定向！
-
-解决办法就是手工下载 zip 文件后，放到下载目录，例如：
-
-    c:\Users\yangbo\.gradle\webdriver\chromedriver\80.0.3987.16\chromedriver_win32\7vp7sm9j7tcxm3sw02xirb7qi\
-
-后重新执行一次 test task 就行了。
-
-执行 build 或者任何 test 任务时，记得设置系统属性“geb.env 和 webdriver.chrome.driver”，每个JUnit任务都要手工定义一遍，
-还没有找到一次性设置的好办法。
-    
-    -Dgeb.env=chrome 
-    -Dwebdriver.chrome.driver="c:\Users\yangbo\.gradle\webdriver\chromedriver\80.0.3987.16\chromedriver_win32\7vp7sm9j7tcxm3sw02xirb7qi\chromedriver.exe"
-
-如果不设置 chrome 环境，geb会去查找 firefox 作为测试浏览器；driver 是你下载的那个chromedriver.exe。
-
-注意：这里 geb.env 和 webdriver.chrome.driver 都是“System Property”系统属性而不是“环境变量”(Environment Variable)，
-在 java 中只能通过 JVM 启动时的命令行参数 -D 定义，或者在代码中用 System.setProperties() 设置；Gradle 中可以在
-gradle.properties 中用前缀 "systemProp.xxx" 来定义。
-
-### 编写功能测试，测试不同用户看到的资产
-
 #### 先要实现登录功能，这里用 spring-security-core 插件来做
 
 引入插件包 spring-security-core 依赖
@@ -387,3 +322,98 @@ DESTROYED 导致的异常。
     }
 
 这个问题属于 https://github.com/grails-plugins/grails-spring-security-core 项目。
+
+### 解决功能测试(functional test)不能运行的问题
+
+运行 build 或者 check 命令或失败，这是因为 webdriver-binaries-gradle-plugin 读取远程配置文件 repository-3.0.json 失败，
+因为这个文件放置google的服务器上，被GTW屏蔽了，且 chromedriver 只有32位的包没有64位的。
+
+感谢淘宝提供的 chromedriver 镜像：http://npm.taobao.org/mirrors/chromedriver/
+
+解决办法是：
+* 生成自己的 repository-3.0.json 文件，且将里面需要从google下载的文件换成淘宝镜像地址。我已经将修改好的上传到github，
+地址是 https://github.com/yangbo/webdriverextensions-maven-plugin-repository，检出、下载到本地即可。
+* 升级 webdriver-binaries-gradle-plugin 到2.2
+* 告诉 webdriver-binaries-gradle-plugin 使用这个新配置文件，且允许回退到32位版本。
+
+还需要注意你机器上的 chrome 版本，driver的版本需要与之对应，例如我的chrome是 80.0.3987.116 版，那么
+就需要用驱动 
+配置如下：
+
+    buildscript {
+        repositories {
+            maven { url "https://repo.grails.org/grails/core" }
+        }
+        dependencies {
+            classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+            classpath "org.grails.plugins:hibernate5:7.0.0"
+            classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.2"
+            classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.0.10"
+        }
+    }
+    webdriverBinaries {
+        chromedriver '80.0.3987.16'
+        geckodriver '0.24.0'
+        driverUrlsConfiguration = resources.text.fromFile('d:\\git\\java\\webdriverextensions-maven-plugin-repository\\repository-3.0.json')
+        fallbackTo32Bit = true
+    }
+
+现在就能成功执行 build, check 任务了！
+
+咱们来创建一个功能测试脚本
+
+    grails create-functional-test FuncTestMultiTenant
+    
+这时运行功能测试会失败，报告下载的 driver 是无效zip文件，这是因为 webdriver-binaries-gradle-plugin 的下载类不支持重定向302导致的。
+因为 webdriver-binaries-gradle-plugin 使用了另外一个项目 grolifant (在gitlab上)，而这个项目的Download对象用的是gradle的
+Download类，这个类不支持跟踪重定向！
+
+解决办法就是手工下载 zip 文件后，放到下载目录，例如：
+
+    c:\Users\yangbo\.gradle\webdriver\chromedriver\80.0.3987.16\chromedriver_win32\7vp7sm9j7tcxm3sw02xirb7qi\
+
+后重新执行一次 test task 就行了。
+
+执行 build 或者任何 test 任务时，记得设置系统属性“geb.env 和 webdriver.chrome.driver”，每个JUnit任务都要手工定义一遍，
+还没有找到一次性设置的好办法。
+    
+    -Dgeb.env=chrome 
+    -Dwebdriver.chrome.driver="c:\Users\yangbo\.gradle\webdriver\chromedriver\80.0.3987.16\chromedriver_win32\7vp7sm9j7tcxm3sw02xirb7qi\chromedriver.exe"
+
+如果不设置 chrome 环境，geb会去查找 firefox 作为测试浏览器；driver 是你下载的那个chromedriver.exe。
+
+注意：这里 geb.env 和 webdriver.chrome.driver 都是“System Property”系统属性而不是“环境变量”(Environment Variable)，
+在 java 中只能通过 JVM 启动时的命令行参数 -D 定义，或者在代码中用 System.setProperties() 设置；Gradle 中可以在
+gradle.properties 中用前缀 "systemProp.xxx" 来定义。
+
+更高级的 geb 使用方式是用 [Page Object Pattern](https://gebish.org/manual/current/#the-page-object-pattern-2)，
+简单说就是定义一个“页面”对象来抽象页面，这样当网页结构修改了，只需要改一个地方，不影响其他测试代码，也方便重用测试代码。
+
+### 编写功能测试，测试不同用户看到的资产
+
+    @Integration
+    @Rollback
+    class FuncTestMultiTenantSpec extends GebSpec {
+    
+        def setup() {
+        }
+    
+        def cleanup() {
+        }
+    
+        void "test something"() {
+            when: "The home page is visited"
+            go '/'
+    
+            then: "The title is correct"
+            title == "Welcome to Grails"
+        }
+    
+        void "测试登录"() {
+            when: "打开资产页时，会跳转到登录页"
+            go "/asset"
+    
+            then: "跳转到登录页"
+            currentUrl.endsWith("login/auth")
+        }
+    }
