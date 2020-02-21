@@ -1,7 +1,6 @@
 package com.telecwin.grails.tutorials.page
 
 import geb.Page
-import geb.Browser
 
 class LoginPage extends Page {
     static at = {
