@@ -23,3 +23,5 @@ environments {
         driver = { new FirefoxDriver() }
     }
 }
+
+reportsDir = 'build/reports/geb-reports'

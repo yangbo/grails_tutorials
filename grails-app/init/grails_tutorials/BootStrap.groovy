@@ -11,6 +11,9 @@ class BootStrap {
             development {
                 populateService.populateUserRoleTenant()
             }
+            test {
+                populateService.populateUserRoleTenant()
+            }
         }
     }
     def destroy = {

@@ -1,6 +1,8 @@
 package com.telecwin.grails.tutorials
 
-import geb.spock.GebSpec
+import com.telecwin.grails.tutorials.page.AssetPage
+import com.telecwin.grails.tutorials.page.LoginPage
+import geb.spock.GebReportingSpec
 import grails.gorm.transactions.Rollback
 import grails.testing.mixin.integration.Integration
 
@@ -9,7 +11,7 @@ import grails.testing.mixin.integration.Integration
  */
 @Integration
 @Rollback
-class FuncTestMultiTenantSpec extends GebSpec {
+class FuncTestMultiTenantSpec extends GebReportingSpec {
 
     def setup() {
     }
@@ -27,9 +29,16 @@ class FuncTestMultiTenantSpec extends GebSpec {
 
     void "测试登录"() {
         when: "打开资产页时，会跳转到登录页"
-        go "/asset"
-
+        via AssetPage
         then: "跳转到登录页"
-        currentUrl.endsWith("login/auth")
+        at LoginPage
+
+        when:
+        username.value("yang")
+        password.value("123")
+        loginButton.click()
+        then:
+        at AssetPage
+        assets.size() == 1
     }
 }

@@ -391,6 +391,12 @@ gradle.properties 中用前缀 "systemProp.xxx" 来定义。
 
 ### 编写功能测试，测试不同用户看到的资产
 
+在gebConfig.groovy中添加一行：
+
+    reportsDir = 'build/reports/geb-reports'
+
+功能测试代码如下：
+
     @Integration
     @Rollback
     class FuncTestMultiTenantSpec extends GebSpec {
@@ -417,3 +423,6 @@ gradle.properties 中用前缀 "systemProp.xxx" 来定义。
             currentUrl.endsWith("login/auth")
         }
     }
+
+运行测试（不论是单元测试还是集成测试）最好都用 idea 的 run as grails test 模式，而不要用 run as junit 模式。
+因为 grails test 模式能知道是在 test environment 下，会正确执行 bootstrap 中环境对应的代码。

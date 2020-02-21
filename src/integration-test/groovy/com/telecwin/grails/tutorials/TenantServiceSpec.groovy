@@ -35,28 +35,25 @@ class TenantServiceSpec extends Specification {
         List<Tenant> tenantList = tenantService.list(max: 10, offset: 0)
 
         then:
-        tenantList.size() == 1
+        tenantList.size() > 0
     }
 
     void "test count"() {
         setupData()
 
         expect:
-        tenantService.count() == 1
+        tenantService.count() > 1
     }
 
     void "test delete"() {
         Long tenantId = setupData()
-
-        expect:
-        tenantService.count() == 1
-
         when:
+        def tenantCount = tenantService.count()
         tenantService.delete(tenantId)
         sessionFactory.currentSession.flush()
 
         then:
-        tenantService.count() == 0
+        tenantService.count() == tenantCount - 1
     }
 
     void "test save"() {
