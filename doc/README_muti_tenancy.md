@@ -426,3 +426,13 @@ gradle.properties 中用前缀 "systemProp.xxx" 来定义。
 
 运行测试（不论是单元测试还是集成测试）最好都用 idea 的 run as grails test 模式，而不要用 run as junit 模式。
 因为 grails test 模式能知道是在 test environment 下，会正确执行 bootstrap 中环境对应的代码。
+
+### 运行 build 和 assembly gradle task
+
+为了执行构建任务和打分发包的任务，我们需要执行 gradle task，最好用 gradle-wrapper 模式，就是执行
+
+    gradlew.bat clean build
+
+命令而不是本机环境变量中的 gradle 命令，因为版本不一样可能造成执行失败。
+
+
