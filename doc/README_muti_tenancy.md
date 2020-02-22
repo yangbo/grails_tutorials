@@ -467,3 +467,16 @@ gradle.properties 中用前缀 "systemProp.xxx" 来定义。
 
 命令而不是本机环境变量中的 gradle 命令，因为版本不一样可能造成执行失败。
 
+### 自定义登录页面添加租户输入框和验证
+
+先添加 ui 插件依赖关系
+
+**build.gradle**
+
+    dependencies {
+       ...
+       compile 'org.grails.plugins:spring-security-ui:4.0.0.M1'
+       ...
+
+查看[自定义方法文档](https://grails-plugins.github.io/grails-spring-security-ui/latest/index.html#customization)
+

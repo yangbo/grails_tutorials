@@ -22,6 +22,9 @@ apply plugin:"org.grails.grails-gsp"
 apply plugin:"com.bertramlabs.asset-pipeline"
 
 repositories {
+    maven {
+        url "http://maven.aliyun.com/nexus/content/groups/public/"
+    }
     maven { url "https://repo.grails.org/grails/core" }
 }
 
@@ -41,6 +44,8 @@ dependencies {
     compile "org.grails:grails-datastore-web:6.1.12.RELEASE"
     // 安全
     compile 'org.grails.plugins:spring-security-core:4.0.0.RC3'
+    // 安全相关UI
+    compile 'org.grails.plugins:spring-security-ui:4.0.0.M1'
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compile "org.springframework.boot:spring-boot-starter-logging"
