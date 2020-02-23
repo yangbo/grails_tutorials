@@ -23,7 +23,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/**/css/**',      access: ['permitAll']],
 	[pattern: '/**/images/**',   access: ['permitAll']],
 	[pattern: '/**/favicon.ico', access: ['permitAll']],
-	[pattern: '/**', access: ['permitAll']]
+	[pattern: '/**',              access: ['permitAll']]
 ]
 
 // URL直接拦截的权限映射
@@ -43,6 +43,7 @@ grails.plugin.springsecurity.interceptUrlMap = [
 		[pattern: '/logout',         access: ['permitAll']],
 		[pattern: '/logout/**',      access: ['permitAll']],
 	    [pattern: '/register/**',    access: ['permitAll']],
+	    [pattern: '/sec/admin/**',   access: ['ROLE_ADMIN']],
 	    [pattern: '/**',      		  access: ['ROLE_USER']],
 ]
 
@@ -56,3 +57,7 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 	[pattern: '/**',             filters: 'JOINED_FILTERS']
 ]
 
+// 定义角色层级
+grails.plugin.springsecurity.roleHierarchy = '''
+   ROLE_ADMIN > ROLE_USER
+'''

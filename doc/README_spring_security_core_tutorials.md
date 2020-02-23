@@ -326,3 +326,18 @@ Spring Security 使用注意事项：
 来简化这个映射配置。
 * 在 Spring Security 中，想要方便地给一个用户一次性地分配多个角色，可以将多个角色定义为一个“角色组”（Group），然后
 给这个用户授予“角色组”即可。
+
+### 指定一组 controller 有相同前缀的方法
+
+用 group 方法：
+
+    group "/product", {
+        "/apple"(controller:"product", id:"apple")
+        "/htc"(controller:"product", id:"htc")
+    }
+
+    group "/store", {
+        group "/product", {
+            "/$id"(controller:"product")
+        }
+    }
