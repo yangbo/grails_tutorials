@@ -336,8 +336,29 @@ Spring Security 使用注意事项：
         "/htc"(controller:"product", id:"htc")
     }
 
+    // 下面这种写法的工作原理还有待研究
     group "/store", {
         group "/product", {
             "/$id"(controller:"product")
         }
     }
+
+给多个controller加相同的前缀，且仅限这几个controller：
+
+        // 这是成功的配置方法
+        ["user", "registrationCode", "role", "securityInfo"].collect { controllerName ->
+            // 下面的写法等价于 invokeMethod("/sec/admin/$controllerName/$action?/$sid?(.$format)?" {...}
+            "/sec/admin/$controllerName/$action?/$sid?(.$format)?"{
+                controller = controllerName
+            }
+        }
+        // 下面这样是不行的，因为在 urlMapping 是在程序启动时确定 controller 的名称，但下面的写法，在启动时还不知道 controller
+        // 的名称，所以controllerName就是null值，而不是我们期望的值，导致 auto-link-rewrite 功能失效。
+        "/sec/admin/$controllerName/$action?/$sid?(.$format)?"{
+            controller = "$controllerName"
+            constraints {
+                controllerName(inList: ["user", "registrationCode", "role", "securityInfo"])
+            }
+        }
+
+【有时间回答一下这个问题 https://stackoverflow.com/questions/5977912/grails-urlmappings-can-one-prefix-urlmappings】
