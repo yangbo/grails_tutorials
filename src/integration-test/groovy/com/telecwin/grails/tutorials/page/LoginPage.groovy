@@ -8,8 +8,8 @@ class LoginPage extends Page {
     }
 
     static content = {
-        username { $("input", name: "username") }
-        password { $("input", name: "password")}
-        loginButton { $("input", type: "submit", value: "Login") }
+        username { $("input", id: "username") }
+        password { $("input", id: "password")}
+        loginButton { $("*", id: "loginButton") }
     }
 }

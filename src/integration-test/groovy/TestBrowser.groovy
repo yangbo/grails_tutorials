@@ -8,7 +8,7 @@ import geb.Configuration
  */
 class TestBrowser {
     public static void main(String[] args) {
-        println("hello geb")
+        println("快速测试 Geb CSS Selector 的类")
         test()
     }
 
