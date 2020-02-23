@@ -1,6 +1,7 @@
 
 grails.plugin.springsecurity.logout.postOnly = false
 
+// URL与权限映射的方式：有 Annotation, Requestmap 和 InterceptUrlMap 三种，由 SecurityConfigType 枚举定义
 grails.plugin.springsecurity.securityConfigType = "InterceptUrlMap"
 
 // Added by the Spring Security Core plugin:
@@ -10,7 +11,7 @@ grails.plugin.springsecurity.authority.className = 'com.telecwin.grails.tutorial
 // security ui 必要的属性
 grails.plugin.springsecurity.userLookup.authoritiesPropertyName = "authorities"
 
-// 这个是属于用注解指定权限的方式
+// 这个是属于用注解方式将URL与权限进行映射的方式
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/',               access: ['permitAll']],
 	[pattern: '/error',          access: ['permitAll']],
@@ -25,7 +26,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/**', access: ['permitAll']]
 ]
 
-// 静态资源映射
+// URL直接拦截的权限映射
 grails.plugin.springsecurity.interceptUrlMap = [
 		[pattern: '/',               access: ['permitAll']],
 		[pattern: '/error',          access: ['permitAll']],
@@ -41,10 +42,11 @@ grails.plugin.springsecurity.interceptUrlMap = [
 		[pattern: '/login/**',       access: ['permitAll']],
 		[pattern: '/logout',         access: ['permitAll']],
 		[pattern: '/logout/**',      access: ['permitAll']],
-		[pattern: '/**/**',      access: ['ROLE_USER']],
-	    [pattern: '/**',      		  access: ['ROLE_USER']]
+	    [pattern: '/register/**',    access: ['permitAll']],
+	    [pattern: '/**',      		  access: ['ROLE_USER']],
 ]
 
+// URL 使用过滤器的定义
 grails.plugin.springsecurity.filterChain.chainMap = [
 	[pattern: '/assets/**',      filters: 'none'],
 	[pattern: '/**/js/**',       filters: 'none'],
