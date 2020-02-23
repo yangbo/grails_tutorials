@@ -4,7 +4,7 @@ import geb.Page
 
 class LoginPage extends Page {
     static at = {
-        title == "Login"
+        title == "登录"
     }
 
     static content = {

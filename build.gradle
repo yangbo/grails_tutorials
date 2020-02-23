@@ -1,3 +1,5 @@
+import java.nio.charset.Charset
+
 buildscript {
     repositories {
         maven {
@@ -122,4 +124,8 @@ tasks.withType(Test) {
 assets {
     minifyJs = true
     minifyCss = true
+}
+
+build {
+    println "当前的字符集：${Charset.defaultCharset()}"
 }
