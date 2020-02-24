@@ -1,6 +1,12 @@
 = Grails 开发教程
+:icons: font
+:stem:
+:sectnums:
+
 杨波 <bo.yang@telecwin.com> 北京塔尔旺科技有限公司
 
+[abstract]
+== Grails 简介
 Grails 是一个开发WEB应用程序的利器，特点是易学、开发效率高、代码量少、灵活、有插件机制。
 Grails 用 Groovy 语言编写，运行于JVM之上，与Java系统无缝对接，且因为 Grails 基于SpringBoot
 和Hibernate，因此拥有安全、稳定、强大的各类Spring框架功能，并且用“配置”编程模式，
@@ -26,3 +32,9 @@ grails 功能专项教程。
 | spring_security_core_tutorials | 演示 Grails 的安全核心插件，基于 spring security 开发的
 | spring_security_rest_tutorials | 演示 Grails 的REST安全插件，基于 grails安全核心插件开发的
 |===
+
+== 回馈
+
+如果你觉得对你有所帮助，请点击一下本项目的github“star”按钮，为本项目点个赞 ：）
+
+请把本项目分享给更多的人，提交 issue、反馈，或者提交 pull request 参与进来一起开发，共同提高。
