@@ -1,0 +1,29 @@
+= Grails 开发教程
+
+杨波 <bo.yang@telecwin.com> 北京塔尔旺科技有限公司
+
+Grails 是一个开发WEB应用程序的利器，特点是易学、开发效率高、代码量少、灵活、有插件机制。
+Grails 用 Groovy 语言编写，运行于JVM之上，与Java系统无缝对接，且因为 Grails 基于SpringBoot
+和Hibernate，因此拥有安全、稳定、强大的各类Spring框架功能，并且用“配置”编程模式，
+即 DSL （领域特定语言）编程的方式，让开发变得非常简便。打个比方，Groovy就是Java生态中的Javascript
+语言，因为Javascript语言对“配置”编程模式支持很好，所以各种Javascript的项目非常流行，
+例如各种基于nodejs的前端框架和项目，像webpack、vue.js、jQuery、express等等。而Grails就是基于这种编程模式的一个web应用开发
+框架，就像是Javascript生态中的express框架，它比SpringMVC开发更加简单高效，是做企业信息化项目、互联网项目和微服务的不错选择。
+
+让我们开始Grails开发之旅吧！
+
+== 使用方法
+
+本项目用不同分支存放不同的 grails 功能类别，master 分支是一个空白初始项目模板，可以用来创建初始项目，其他分支是具体的某个
+grails 功能专项教程。
+
+分支功能说明
+[%header]
+|===
+| 分支名 | 功能说明
+| master | 用作项目初始化的空白模板，只有最基本的配置，不包含其他功能，如“安全”等插件
+| 5.3_gorm_inheritance | 用来演示 GORM 的各种功能
+| GORM-12-Multi-Tenancy | 演示 GORM 对多租户的支持
+| spring_security_core_tutorials | 演示 Grails 的安全核心插件，基于 spring security 开发的
+| spring_security_rest_tutorials | 演示 Grails 的REST安全插件，基于 grails安全核心插件开发的
+|===
