@@ -33,7 +33,7 @@ grails 功能专项教程。
 | spring_security_rest_tutorials | 演示 Grails 的REST安全插件，基于 grails安全核心插件开发的
 |===
 
-本项目最重要的资源是 file://doc/[doc/] 目录下的文档，每个专项功能会把自己的文档放在 doc/ 目录下，为了阅读方法，master 分支的 doc/ 目录
+本项目最重要的资源是 file://doc/[doc/] 目录下的文档，每个专项功能会把自己的文档放在 doc/ 目录下，为了阅读方便，master 分支的 doc/ 目录
 下也会存放一份，便于从 master 检出后查阅。
 
 == 回馈
