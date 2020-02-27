@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>websocket演示</title>
     <meta name="layout" content="main"/>
 
     <asset:javascript src="application"/>
@@ -13,12 +14,12 @@
 
             client.connect({}, function () {
                 client.subscribe("/topic/hello", function (message) {
-                    $("#helloDiv").append(message.body);
+                    $("#helloDiv").append("<p>"+JSON.parse(message.body)+"</p>");
                 });
             });
 
             $("#helloButton").click(function () {
-                client.send("/app/hello", JSON.stringify("world"));
+                client.send("/app/hello", JSON.stringify("世界"));
             });
         });
     </script>
