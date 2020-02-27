@@ -41,6 +41,8 @@ dependencies {
     compile 'org.grails.plugins:spring-security-core:4.0.0.RC3'
     // websocket plugin
     compile 'org.grails.plugins:grails-spring-websocket:2.5.0.RC1'
+    // 添加 asset pipeline 的 coffee-js 支持
+    assets 'com.bertramlabs.plugins:coffee-asset-pipeline:3.0.10'
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compile "org.springframework.boot:spring-boot-starter-logging"
