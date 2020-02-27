@@ -39,7 +39,9 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.18'
     // spring security core plugin
     compile 'org.grails.plugins:spring-security-core:4.0.0.RC3'
-    
+    // websocket plugin
+    compile 'org.grails.plugins:grails-spring-websocket:2.5.0.RC1'
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
