@@ -222,6 +222,10 @@ SpringSecurity 中，决定一个用户是否有权限访问某资源，是由 A
 
 ## Grails Spring-Security-Core plugin 使用教程
 
+### 文档
+
+* [Spring Security Core Plugin Document](https://grails-plugins.github.io/grails-spring-security-core/4.0.x/index.html)
+
 ### 工作总览
 1. 引入依赖包 'org.grails.plugins:spring-security-core:4.0.0.RC3'
 2. 创建不安全的 web 应用
