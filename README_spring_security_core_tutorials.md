@@ -30,7 +30,7 @@
 * 和授权相关的概念：
     * 要意识到授权包括两个动作，“授权”和“鉴权”。
     * 权限（authorities）：即访问某个资源、执行某个操作的权利。也就是 permissions（许可）。
-    * 授予的权限权（granted authorities）：这里是名词，而不是动词，表示某个主体已经被授予或者说分配了的权限。注意不是授权动作。
+    * 授予的权限（granted authorities）：这里是名词，而不是动词，表示某个主体已经被授予或者说分配了的权限。注意不是授权动作。
     * 访问控制（Access Control）：也称为鉴权，即决定已认证的主体是否有权利访问本资源、URL或执行方法等操作。
     * 角色（Role）：代表某种工作职责和权利范围，例如“管理员（admin）”、“编辑（editor）”等。角色会用在两个地方，
                     分配权限时和执行访问控制时，即授权和鉴权时。注意，角色也只是实现访问控制的一种方式，还有其他的实现方式。
@@ -108,7 +108,7 @@
         Object getDetails();
     
         /**
-         * 返回正在被认证或已经认证过的“身份标识”对象。
+         * 返回正在被认证或已经认证过的“身份标识”对象。一般就是登录的“用户”对象。
          */
         Object getPrincipal();
     
@@ -148,9 +148,9 @@ userName, password, authorities(权限), expired(过期), lock(锁定), credenti
 属性。UserDetails 接口的具体对象，就是 Authentication.getPrinciple() 所返回的对象，它是SpringSecurity框架与具体应用程序
 之间的一个适配器，让SpringSecurity可用适应各种不同的应用程序。
 
-怎么创建的这 UserDetails 对象呢？
+怎么创建这个 UserDetails 对象呢？
 
-这是由 UserDetailsService 接口创建的，这个接口只有一个方法：
+它这是由 UserDetailsService 接口创建的，这个接口只有一个方法：
 
     public interface UserDetailsService {
         /**
@@ -165,7 +165,7 @@ userName, password, authorities(权限), expired(过期), lock(锁定), credenti
 
 #### 怎么来创建、配置一个 AuthenticationManager 呢？
 
-用 AuthenticationManagerBuilder 这个工具类可用创建和配 AuthenticationManager，例如下面的代码演示了创建一个顶层、全局的 
+用 AuthenticationManagerBuilder 这个工具类可以创建和配置 AuthenticationManager，例如下面的代码演示了创建一个顶层、全局的 
 AuthenticationManager。
 
     @Configuration
