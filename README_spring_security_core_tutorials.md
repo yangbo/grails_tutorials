@@ -141,6 +141,20 @@ ProviderManager 可以有一个parent(父)ProviderManager对象，当它自己�
 认证管理器，而“/user/**”用另外一个认证管理器。根节点就代表了公共认证器，这就可以形成一个树形结构，结构如下图所示。
 ![用ProviderManager形成的AuthenticationManager树](./doc_images/authentication.png)
 
+AuthenticationProvider 接口能够让调用方知道本对象是否支持对指定类型的 Authentication 对象进行身份验证。
+
+    public interface AuthenticationProvider {
+        /**
+         * 执行身份认证
+         */
+        Authentication authenticate(Authentication authentication) throws AuthenticationException;
+        
+        /**
+         * 是否支持指定类的 Authentication 认证。
+         */
+        boolean supports(Class<?> authentication);
+    } 
+
 #### UserDetails 和 UserDetailsService
 
 SpringSecurity框架中，为“身份标识”（principle）这个概念提供了一个具体的定义，即 UserDetails 接口。这个接口定义了
