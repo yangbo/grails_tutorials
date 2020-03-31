@@ -203,8 +203,15 @@ RFC6750规范的内容核心是：
 
 **application.groovy**
 
-    // 至少32字节的密钥
-    grails.plugin.springsecurity.rest.token.storage.jwt.secret = "rest_api_key_2020rest_api_key_2020rest_api_key_2020"
+    grails:
+      plugin:
+        springsecurity:
+          rest:
+            token:
+              storage:
+                jwt:
+                  # 至少 32 字节
+                  secret: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
 * 为普通url和api url分别配置不同的过滤器
 
