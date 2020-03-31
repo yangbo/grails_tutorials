@@ -347,3 +347,12 @@ Spring Security 使用注意事项：
 来简化这个映射配置。
 * 在 Spring Security 中，想要方便地给一个用户一次性地分配多个角色，可以将多个角色定义为一个“角色组”（Group），然后
 给这个用户授予“角色组”即可。
+
+## 如何让 Spring Security 支持多租户的 SaaS 场景？
+
+可以用 filter + ThreadLocale 的方式。即先用过滤器在 spring security filter 之前设置好线程本地变量 tenantId，然后
+实现一个自定义的 UserDetailService，在查找用户时通过线程本地变量获取 tenantId 并且作为查询用户的条件。
+
+如果我们使用 JWT 来提供 REST API，那么我们还需要自定义 JWT 的 claims 内容，将 tenantId 写入 claims 中。
+
+[参考文章](https://www.developer.com/java/ent/extend-spring-security-to-protect-multi-tenant-saas-applications.html)
