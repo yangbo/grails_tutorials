@@ -294,10 +294,13 @@ build.gradle 文件中添加一行依赖声明
 注意：UserRole 必须用withTransaction，因为 init 闭包不会在事务中或者 session 中运行，需要显式创建一个事务，
 因为 UserRole.create() save时设置了flush=false，即不会立即保存到数据库中。
 
-在 application.groovy 中添加一行:
+方法是在 application.yml 中添加下面内容：
 
-    grails.plugin.springsecurity.logout.postOnly = false
-    
+    plugins:
+        springsecurity:
+            logout:
+                postOnly: false
+
 告诉 grails spring-security-core plugin 支持 GET 模式的登出，这样方便测试，否则要编写一个 form 来提交登出，测试比较费事。
 
 这时，访问 contract controller (/contract/index)，就会跳转到 login 页面，输入正确的用户名密码后，就能进入 /home 页面，但访问
