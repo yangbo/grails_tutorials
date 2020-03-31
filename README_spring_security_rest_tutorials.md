@@ -201,7 +201,7 @@ RFC6750规范的内容核心是：
 
 * 首先添加 JWT 密钥。
 
-**application.groovy**
+**application.yml**
 
     grails:
       plugin:
