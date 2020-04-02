@@ -332,7 +332,7 @@ DESTROYED 导致的异常。
 
 解决办法是：
 * 生成自己的 repository-3.0.json 文件，且将里面需要从google下载的文件换成淘宝镜像地址。我已经将修改好的上传到github，
-地址是 https://github.com/yangbo/webdriverextensions-maven-plugin-repository，检出、下载到本地即可。
+地址是 https://github.com/yangbo/webdriverextensions-maven-plugin-repository 检出、下载到本地即可。
 * 升级 webdriver-binaries-gradle-plugin 到2.2
 * 告诉 webdriver-binaries-gradle-plugin 使用这个新配置文件，且允许回退到32位版本。
 
