@@ -17,4 +17,8 @@ class MessageService implements WebSocket{
                 JsonOutput.toJson("执行定时服务于${new Date().format("yyyy-MM-dd HH:mm:ss")}")
         )
     }
+
+    def sendToUser(String msg) {
+        convertAndSendToUser("userId", "/queue/staffSpeak", msg)
+    }
 }
