@@ -98,12 +98,12 @@ RFC6750规范的内容核心是：
          */
         def populateForDevelopEnv() {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-            new Contract(name: "轨检一期", signDate: simpleDateFormat.parse("2017-09-03 00:00:00")).save()
-            new Contract(name: "轨检二期", signDate: simpleDateFormat.parse("2017-10-30 00:00:00")).save()
-            new Contract(name: "轨检三期", signDate: simpleDateFormat.parse("2018-01-10 00:00:00")).save()
-            new Contract(name: "轨检四期", signDate: simpleDateFormat.parse("2018-03-07 00:00:00")).save()
-            new Contract(name: "轨检五期", signDate: simpleDateFormat.parse("2018-10-05 00:00:00")).save()
-            new Contract(name: "轨检六期", signDate: simpleDateFormat.parse("2019-01-20 00:00:00")).save()
+            new Contract(name: "一期", signDate: simpleDateFormat.parse("2017-09-03 00:00:00")).save()
+            new Contract(name: "二期", signDate: simpleDateFormat.parse("2017-10-30 00:00:00")).save()
+            new Contract(name: "三期", signDate: simpleDateFormat.parse("2018-01-10 00:00:00")).save()
+            new Contract(name: "四期", signDate: simpleDateFormat.parse("2018-03-07 00:00:00")).save()
+            new Contract(name: "五期", signDate: simpleDateFormat.parse("2018-10-05 00:00:00")).save()
+            new Contract(name: "六期", signDate: simpleDateFormat.parse("2019-01-20 00:00:00")).save()
         }
     
         def list(Map params) {
